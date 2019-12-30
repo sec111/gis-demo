@@ -3,12 +3,14 @@
     <div :id="id" class="map"></div>
     <layer ref="layer" />
     <ui ref="ui" />
+    <!-- <measure ref="measure" /> -->
   </div>
 </template>
 <script>
-import { mapActions } from 'vuex';
+// import { mapActions } from 'vuex';
 import layer from './layer';
 import ui from './ui';
+// import measure from './measure';
 
 export default {
   props: {
@@ -42,9 +44,19 @@ export default {
       this.map =  L.map(id, option);
       this.$refs.layer.init();
       this.$refs.ui.init();
+      // this.$refs.measure.init();
+    },
+    getMapId() {
+      return this.id;
     },
     getMap() {
       return this.map;
+    },
+    getLayer() {
+      return this.$refs.ui;
+    },
+    getUI() {
+      return this.$refs.ui;
     },
     // 设置地图初始配置 center zoom id mapUrl
     changeOption(key, value) {
@@ -62,10 +74,16 @@ export default {
     this.initSupermap();
     this.layer = this.$refs.layer;
     this.ui = this.$refs.ui;
+
+    // this.measure = this.$refs.measure;
+    this.common.checkLoading('turf');
   },
   provide: function () {
     return {
-      getMap: this.getMap
+      getMap: this.getMap,
+      getLayer: this.getLayer,
+      getUI: this.getUI,
+      getId: this.getId
     }
   }
 };

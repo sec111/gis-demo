@@ -27,13 +27,16 @@ export default {
       return L.videoOverlay(mapUrl, ...props);
     },
     // 添加图层组
-    genLayerGroup(groupName) {
-      this.map = this.getMap();
+    genLayerGroup(groupName, get = true) {
       if (this.groupList.hasOwnProperty(groupName) && this.groupList[groupName]) {
         console.log('已存在同名图层组');
-        return;
+      } else {
+        this.groupList[groupName] = L.layerGroup().addTo(this.map);
       }
-      this.groupList[groupName] = L.layerGroup().addTo(this.map);
+
+      if (get) {
+        return this.groupList[groupName];
+      }
     },
     getLayerGroup(groupName) {
       if (!this.groupList.hasOwnProperty(groupName)) {
@@ -42,10 +45,21 @@ export default {
       }
       return this.groupList[groupName];
     },
+    clearGroup(groupName) {
+      if (!this.groupList.hasOwnProperty(groupName)) {
+        console.log(`不存在名为${groupName}的图层组`);
+        return;
+      }
+
+      this.clearLayers(this.groupList[groupName]);
+      const { groupList } = this;
+      delete groupList[groupName];
+      this.groupList = groupList;
+    },
     // 移除图层组
     clearLayers(target) {
-      if (target.length === 0) {
-        console.log('图层组已为空');
+      if (!target) {
+        console.log(`图层为空！`);
         return;
       }
       target.clearLayers();

@@ -70,7 +70,6 @@ const common = {
         let i = begin;
         fun(begin, begin + step);
         const count = setInterval(() => {
-          console.log(i);
           if (i >= max) {
             clearInterval(count);
             callback && callback();
@@ -78,8 +77,19 @@ const common = {
           i += step;
           fun(i, i + step);
         }, time);
-        // count && clearInterval(count);
-      }
+        return count;
+      },
+      stopInterval(interval) {
+        clearInterval(interval);
+      },
+      /**
+       * 数据渲染成html 
+       */ 
+      str2htmlElement(str) {
+        let ele = document.createElement('div');
+        ele.innerHTML = str;
+        return ele.childNodes[0];
+      },
     };
   }
 };

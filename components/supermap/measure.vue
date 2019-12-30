@@ -1,9 +1,11 @@
 <script>
 export default {
-  props: ['id'],
+  inject: ['getMap', 'getUI', 'getLayer', 'getId'],
   data() {
     return {
-      map: {},
+      map: undefined,
+      group: {},
+
       tempPoint: null,
       tempLine: null,
       tempPolygon: null,
@@ -13,31 +15,49 @@ export default {
       tipLayer: []
     };
   },
-  computed: {
-    ...mapState('supermap', ['mapList'])
-  },
   methods: {
-    removeTip() {
-      this.tipLayer.clearLayers();
+    init() {
+      this.map = this.getMap();
+      this.ui = this.getUI();
+      this.layer = this.getLayer();
+
+      this.dom = document.getElementById(this.getId());
+      this.group = this.layer.genLayerGroup('meature');
+    },
+    showTip(point) {
+      const { map, ui } = this; 
+      const tip = '<p>左键单击绘制点</br>回车绘制结束</p>';
+      ui.genPopup(point, tip, group);
     },
     /**
      * measureArea
-     *  */ 
+     **/ 
     handleMeasureDistance() {
-      document.getElementById(this.initOption.id).style.cursor = 'crosshair';
-      this.tempLine = L.polyline({ color: 'orange' });
-      this.map.off('click');
-      this.map.off('keypress');
-      this.map.on('click', (e) => this.drawLine(e));
-      this.map.on('keypress', (e) => this.endLine(e));
+      const { map, drawLine, endLine, dom, group, ui } = this;
+
+      if (!map) {
+        console.log('地图未初始化！');
+        return;
+      }
+
+      dom.style.cursor = 'crosshair';
+
+      const lineOption = { color: 'orange' };
+      ui.addPolyline([], lineOption, group);
+
+      map.off('click');
+      map.off('keypress');
+      map.on('click', drawLine);
+      map.on('keypress', endLine);
     },
     drawLine(e) {
       const { lat, lng } = e.latlng;
       this.points.push(e.latlng);
-      this.removeTip();
+
       const prevPoint = this.tempPoint;
       this.tempPoint = L.latLng(lat, lng);
-      this.addPopup({ content: `<p>左键单击绘制点</br>回车绘制结束</p>`, location: this.tempPoint, flush: true });
+
+      this.addPopup({ content: `<p>左键单击绘制点</br>回车绘制结束</p>`, location: this.tempPoint });
       if (!prevPoint) {
         return;
       }
@@ -98,7 +118,8 @@ export default {
       this.map.off('click');
       this.map.off('keypress');
     }
-  }
+  },
+
 };
 </script>
 <template>
