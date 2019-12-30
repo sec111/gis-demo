@@ -3,14 +3,14 @@
     <div :id="id" class="map"></div>
     <layer ref="layer" />
     <ui ref="ui" />
-    <measure ref="measure" />
+    <!-- <measure ref="measure" /> -->
   </div>
 </template>
 <script>
-import { mapActions } from 'vuex';
+// import { mapActions } from 'vuex';
 import layer from './layer';
 import ui from './ui';
-import measure from './measure';
+// import measure from './measure';
 
 export default {
   props: {
@@ -35,7 +35,7 @@ export default {
       map: {}
     };
   },
-  components: { layer, ui, measure },
+  components: { layer, ui },
   methods: {
     // 地图初始化
     initSupermap() {
@@ -44,7 +44,7 @@ export default {
       this.map =  L.map(id, option);
       this.$refs.layer.init();
       this.$refs.ui.init();
-      this.$refs.measure.init();
+      // this.$refs.measure.init();
     },
     getMapId() {
       return this.id;
@@ -75,14 +75,15 @@ export default {
     this.layer = this.$refs.layer;
     this.ui = this.$refs.ui;
 
-    this.measure = this.$refs.measure;
+    // this.measure = this.$refs.measure;
     this.common.checkLoading('turf');
   },
   provide: function () {
     return {
       getMap: this.getMap,
       getLayer: this.getLayer,
-      getUI: this.getUI
+      getUI: this.getUI,
+      getId: this.getId
     }
   }
 };
