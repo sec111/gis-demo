@@ -20,7 +20,7 @@ export default {
       { src: '/libs/supermap/leaflet-src.js' },
       { src: '/libs/supermap/iclient-leaflet-es6.min.js' },
       // { src: '/libs/leaflet-easyPrint/bundle.js' },
-      // { src: '/libs/turf.min.js' },
+      { src: '/libs/turf.min.js' },
     ],
   },
   /*
