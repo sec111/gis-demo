@@ -27,14 +27,23 @@
       <button @click="addEvent()">监听事件点</button>
       <button @click="clearGroup('eventMarker')">删除事件点</button>
       <br/>
+      
+      <div class="map1">
+        <supermap :ref="id" :id="id" :option="option" />
+      </div>
+
+      <br/>
+      <button @click="handleMeasureDistance()">测距</button>
+      <button @click="handleMeasureArea()">测面</button>
+      <button @click="removeMeasure()">清除测量</button>
+      <br/>
+
       <button @click="console.log(1)">添加台风</button>
       <button @click="console.log(1)">取消台风</button>
-
-      <button @click="console.log(1)">激活测量</button>
-      <button @click="console.log(1)">取消测量</button>
       <br/>
-      <div>
-        <supermap :ref="id" :id="id" :option="option" />
+
+      <div class="map2">
+        <supermap :ref="id2" :id="id2" :option="option" />
       </div>
       
     </div>
@@ -52,6 +61,7 @@ export default {
   data() {
     return {
       id: 'testmap',
+      id2: 'testmap2',
       option: {
         crs: L.CRS.EPSG4326,
         center: [30, 110],
@@ -91,6 +101,7 @@ export default {
       ],
       
       basemapName: 'tianditu',
+      basemapName2: 'city',
       tempIcon: {}
     };
   },
@@ -104,7 +115,7 @@ export default {
       addTiandituBaseMap(basemapName, basemapOption.url);
     },
 
-    // 数据映射--个性化icon
+    // 示例：数据映射--个性化icon
     genIcon(data) {
       const iconUrl = data.damType > 2 ? dzIconThirty : panoIcon;
       return {
@@ -207,7 +218,7 @@ export default {
         'popupclose': focusOutMarker
       };
 
-      const popupOption = { closeOnEscapeKey: 'auto', closeButton: false, keepInView: true, isOpen: true };
+      const popupOption = { closeOnEscapeKey: 'auto', closeButton: false, keepInView: true };
 
       addMarker(markerData, group, { iconFunc: genIcon, popupOption, renderPopup, event });
     },
@@ -244,8 +255,6 @@ export default {
       });
     },
 
-
-
     // 示例： 关闭图层组
     closeMarker(groupName) {
 
@@ -262,11 +271,37 @@ export default {
     clearGroup(groupName) {
       const group = this.supermap.layer.getLayerGroup(groupName);
       this.supermap.layer.clearLayers(group);
-    }
+    },
+
+    // 切换地图
+    changeBasemap2() {
+      const { basemapName, mapUrlList } = this;
+      const { addTiandituBaseMap } = this.supermap2.layer;
+
+      const basemapOption = mapUrlList.find(m => m.name === basemapName);
+      addTiandituBaseMap(basemapName, basemapOption.url);
+    },
+    // 测距
+    handleMeasureDistance() {
+      this.supermap2.measure.handleMeasureDistance();
+    },
+    // 测面
+    handleMeasureArea() {
+      this.supermap2.measure.handleMeasureArea();
+    },
+    // 取消测量
+    removeMeasure() {
+      this.supermap2.measure.removeMeasure();
+    },
+
+
+
   },
   mounted() {
     this.supermap = this.$refs[this.id];
+    this.supermap2 = this.$refs[this.id2];
     this.changeBasemap();
+    this.changeBasemap2();
   }
 };
 </script>
@@ -275,6 +310,14 @@ export default {
     position: absolute;
     width: 100%;
     height: 600px;
+  }
+  .map-test .map1 {
+    width: 100%;
+    height: 350px;
+  }
+  .map-test .map2 {
+    width: 100%;
+    height: 350px;
   }
   select {
     margin: 8px;

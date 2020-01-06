@@ -1,16 +1,16 @@
 <template>
-  <div>
+  <div class="full">
     <div :id="id" class="map"></div>
     <layer ref="layer" />
     <ui ref="ui" />
-    <!-- <measure ref="measure" /> -->
+    <measure ref="measure" />
   </div>
 </template>
 <script>
 // import { mapActions } from 'vuex';
 import layer from './layer';
 import ui from './ui';
-// import measure from './measure';
+import measure from './measure';
 
 export default {
   props: {
@@ -35,7 +35,7 @@ export default {
       map: {}
     };
   },
-  components: { layer, ui },
+  components: { layer, ui, measure },
   methods: {
     // 地图初始化
     initSupermap() {
@@ -44,7 +44,7 @@ export default {
       this.map =  L.map(id, option);
       this.$refs.layer.init();
       this.$refs.ui.init();
-      // this.$refs.measure.init();
+      this.$refs.measure.init();
     },
     getMapId() {
       return this.id;
@@ -53,7 +53,7 @@ export default {
       return this.map;
     },
     getLayer() {
-      return this.$refs.ui;
+      return this.$refs.layer;
     },
     getUI() {
       return this.$refs.ui;
@@ -75,27 +75,31 @@ export default {
     this.layer = this.$refs.layer;
     this.ui = this.$refs.ui;
 
-    // this.measure = this.$refs.measure;
     this.common.checkLoading('turf');
+    this.measure = this.$refs.measure;
   },
   provide: function () {
     return {
       getMap: this.getMap,
       getLayer: this.getLayer,
       getUI: this.getUI,
-      getId: this.getId
+      getMapId: this.getMapId
     }
   }
 };
 </script>
 <style scoped>
   .map	{
-    position: absolute;
+    /* position: absolute; */
     margin-top: 0;
     width: 100%;
     height: 100%;
     z-index: 0;
     background-size: 100% 100%;
     background-color: #004a77;
+  }
+  .full {
+    width: 100%;
+    height: 100%;
   }
 </style>
