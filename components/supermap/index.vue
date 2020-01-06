@@ -4,13 +4,15 @@
     <layer ref="layer" />
     <ui ref="ui" />
     <measure ref="measure" />
+    <typhoon ref="typhoon" />
   </div>
 </template>
 <script>
-// import { mapActions } from 'vuex';
+
 import layer from './layer';
 import ui from './ui';
 import measure from './measure';
+import typhoon from './typhoon';
 
 export default {
   props: {
@@ -35,7 +37,7 @@ export default {
       map: {}
     };
   },
-  components: { layer, ui, measure },
+  components: { layer, ui, measure, typhoon },
   methods: {
     // 地图初始化
     initSupermap() {
@@ -45,6 +47,7 @@ export default {
       this.$refs.layer.init();
       this.$refs.ui.init();
       this.$refs.measure.init();
+      this.$refs.typhoon.init();
     },
     getMapId() {
       return this.id;
@@ -77,6 +80,7 @@ export default {
 
     this.common.checkLoading('turf');
     this.measure = this.$refs.measure;
+    this.typhoon = this.$refs.typhoon;
   },
   provide: function () {
     return {

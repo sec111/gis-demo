@@ -10,7 +10,7 @@ export default {
       tempPoint: null,
       tempLine: null,
       tempDistance: 0,
-      tempPolygon: null,
+      tempPolygon: null
     };
   },
   methods: {
@@ -27,10 +27,10 @@ export default {
       this.measureGroup.clearLayers();
     },
     showTip(point, dis = undefined) {
-      const { map, ui, common, mesureTipGroup } = this;
+      const { ui, common, mesureTipGroup } = this;
       const { parseUnit } = common;
       const { genPopup } = ui;
-      
+
       let tip, className;
 
       if (!dis) {
@@ -45,7 +45,7 @@ export default {
         className,
         closeButton: false
       };
-      
+
       genPopup(pupupOption, point, tip, mesureTipGroup);
     },
 
@@ -54,7 +54,7 @@ export default {
     },
     /**
      * measureDistance
-     **/ 
+     **/
     handleMeasureDistance() {
       const { map, drawLine, endLine, dom, measureGroup, ui } = this;
 
@@ -105,18 +105,17 @@ export default {
       this.measureGroup.addLayer(this.tempLine);
     },
     endLine(e) {
-      const { map, tempLine, tempDistance, measureGroup, removeTip, showTip, ui, dom, common } = this;
+      const { map, tempLine, tempDistance, removeTip, ui, dom, common } = this;
       const { bindTooltip } = ui;
 
       dom.style.cursor = 'default';
 
       removeTip();
-      // this.showTip(tempLine.getCenter(), tempDistance);
 
       const distance = common.parseUnit(tempDistance, '米');
       const tip = `<p>总距离：${distance}</p>`;
       const tooltipOption = { opacity: 0.8, direction: 'top', className: 'tooltip', permanent: true };
-      bindTooltip(tip, tempLine, tooltipOption, tempLine.getCenter()) 
+      bindTooltip(tip, tempLine, tooltipOption, tempLine.getCenter());
 
       this.tempPoint = null;
       this.tempLine = null;
@@ -127,8 +126,7 @@ export default {
 
     /**
      * measureArea
-     *  */ 
-    
+     *  */
     handleMeasureArea() {
       const { map, drawPoly, endPoly, dom, measureGroup, ui } = this;
 
@@ -155,7 +153,7 @@ export default {
       dom.style.cursor = 'default';
       removeTip();
 
-      const geoJson = tempPolygon.toGeoJSON()
+      const geoJson = tempPolygon.toGeoJSON();
       const area = turf.area(geoJson);
       const center = turf.centroid(geoJson);
       const [ lng, lat ] = center.geometry.coordinates;

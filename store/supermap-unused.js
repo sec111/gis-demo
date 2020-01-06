@@ -13,30 +13,34 @@ const actions = {
     if (typeof str !== 'string') {
       return '地图id必须为字符串';
     }
+
+    const mapList = state.mapList;
+
     if (mapList.hasOwnProperty(mapId)) {
       return '地图id冲突';
     }
-
-    const mapList = state.mapList;
     mapList[mapId] = map;
-    mutations.SET_MAPLIST(maplist);
+    mutations.SET_MAPLIST(mapList);
     return null;
   },
   removeMap({state, mutations}, mapId) {
+    const mapList = state.mapList;
+
     if (!mapList.hasOwnProperty(mapId)) {
       return `不存在id为${mapId}的地图`;
     }
 
-    const mapList = state.mapList;
     delete mapList[mapId];
-    mutations.SET_MAPLIST(maplist); 
-    return null; 
+    mutations.SET_MAPLIST(mapList);
+    return null;
   },
   getMap({state}, mapId) {
+    const mapList = state.mapList;
+
     if (!mapList.hasOwnProperty(mapId)) {
       return `不存在id为${mapId}的地图`;
     }
-    
+
     return mapList[mapId];
   }
 };
@@ -46,4 +50,4 @@ export default {
   state,
   mutations,
   actions
-}
+};
