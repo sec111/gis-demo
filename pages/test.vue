@@ -5,7 +5,6 @@
       <select name="public-choice" v-model="basemapName" @change="changeBasemap">                                        
           <option v-for="mapUrl in mapUrlList" :key="mapUrl.name" :value="mapUrl.name">{{mapUrl.label}}</option>                                    
       </select>
-      <br/>
       <button @click="addSingleMarker()">添加单个点</button>
       <button @click="clearGroup('singlePoint')">删除单个点</button>
 
@@ -32,14 +31,12 @@
         <supermap :ref="id" :id="id" :option="option" />
       </div>
 
-      <br/>
       <button @click="handleMeasureDistance()">测距</button>
       <button @click="handleMeasureArea()">测面</button>
       <button @click="removeMeasure()">清除测量</button>
-      <br/>
 
-      <button @click="console.log(1)">添加台风</button>
-      <button @click="console.log(1)">取消台风</button>
+      <button @click="addTyphoon(17219)">添加台风</button>
+      <button @click="removeTyphoon(17219)">取消台风</button>
       <br/>
 
       <div class="map2">
@@ -52,8 +49,8 @@
 <script>
 import supermap from '@/components/supermap';
 import damJson from '@/static/json/damData.json';
-import dzIconThirty from '@/static/image/地质灾害点-高亮.png';
-import panoIcon from '@/static/image/red.png';
+import dzIconThirty from '@/static/image/gis/disaster.png';
+import panoIcon from '@/static/image/gis/red.png';
 
 export default {
   layout: 'none',
@@ -293,9 +290,14 @@ export default {
     removeMeasure() {
       this.supermap2.measure.removeMeasure();
     },
-
-
-
+    // 添加台风
+    addTyphoon(eventId) {
+      this.supermap2.typhoon.addTyphoon(eventId);
+    },
+    // 删除台风
+    removeTyphoon(eventId) {
+      this.supermap2.typhoon.clearTyphoon(eventId);
+    }
   },
   mounted() {
     this.supermap = this.$refs[this.id];

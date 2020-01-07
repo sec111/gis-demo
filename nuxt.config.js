@@ -65,5 +65,13 @@ export default {
     */
     extend (config, ctx) {
     }
-  }
+  },
+  proxy: [
+    [
+      '/jsonrpc',
+      {
+        target: 'http://emgtest.dam.com.cn:8082',
+      }
+    ],
+  ]
 }

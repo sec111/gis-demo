@@ -69,6 +69,8 @@ export default {
       marker.addTo(target);
       
       bindThing(marker, markerData, props);
+
+      return marker;
     },
     // 添加多个标注点
     addMarker(markerData, target, props = {}) {
@@ -121,7 +123,7 @@ export default {
       } 
     },
     
-    // 添加折线
+    // 添加折线 LatLng[]
     addPolyline(lineData, lineOption, target) {
       const option = lineOption ? lineOption : {};
       return L.polyline(lineData, option).addTo(target);

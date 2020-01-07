@@ -71,7 +71,7 @@ export default {
 
     /**
      * supermap
-     */ 
+     */
     // 生成天地图
     genTiandituTileLayer(option) {
       const { key } = option;
@@ -83,9 +83,9 @@ export default {
     },
     // 切换天地图底图
     addTiandituBaseMap(name, mapOption) {
-      const { checkOption, genLayerGroup, genTiandituTileLayer, addLayer, clearLayers, common } = this;
-      const { isEmptyObject, getTiandituKey } = common;
-      
+      const { checkOption, genTiandituTileLayer, addLayer, clearLayers, common } = this;
+      const { getTiandituKey } = common;
+
       const mapName = 'basemap';
       if (!checkOption(name, mapOption)) {
         return;
@@ -101,7 +101,7 @@ export default {
           addLayer(genTiandituTileLayer({ key: getTiandituKey(), ...option }), this.groupList[mapName]);
         });
       } else {
-        addLayer(genTiandituTileLayer({ key: getTiandituKey(), ...option }), this.groupList[mapName]);
+        addLayer(genTiandituTileLayer({ key: getTiandituKey(), ...mapOption }), this.groupList[mapName]);
       }
     },
 
@@ -111,15 +111,14 @@ export default {
     // 检查图层配置
     checkOption(name, mapOption) {
       if (!name || !mapOption || this.common.isEmptyObject(mapOption)) {
-        console.log('地图名称为空或地图配置为空！')
+        console.log('地图名称为空或地图配置为空！');
         return false;
       }
       return true;
     }
   },
   inject: ['getMap']
-  // watch: 
-}
+};
 </script>
 <template>
 </template>
