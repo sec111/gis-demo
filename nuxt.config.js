@@ -14,14 +14,14 @@ export default {
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       { rel: 'stylesheet', href: '/libs/supermap/leaflet.css' },
-      { rel: 'stylesheet', href: '/libs/supermap/iclient-leaflet.min.css' },
+      { rel: 'stylesheet', href: '/libs/supermap/iclient-leaflet.min.css' }
     ],
     script: [
       { src: '/libs/supermap/leaflet-src.js' },
       { src: '/libs/supermap/iclient-leaflet-es6.min.js' },
       // { src: '/libs/leaflet-easyPrint/bundle.js' },
-      // { src: '/libs/turf.min.js' },
-    ],
+      { src: '/libs/turf.min.js' }
+    ]
   },
   /*
   ** Customize the progress-bar color
@@ -48,7 +48,7 @@ export default {
   */
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios',
+    '@nuxtjs/axios'
   ],
   /*
   ** Axios module configuration
@@ -63,7 +63,15 @@ export default {
     /*
     ** You can extend webpack config here
     */
-    extend (config, ctx) {
+    extend(config, ctx) {
     }
-  }
-}
+  },
+  proxy: [
+    [
+      '/jsonrpc',
+      {
+        target: 'http://emgtest.dam.com.cn:8082'
+      }
+    ]
+  ]
+};
