@@ -9,7 +9,6 @@ const common = {
       getTiandituKey: function () {
         return '55d4661b37331450725f6e4c14aeb387';
       },
-      
       /**
        * 单位转化
        */
@@ -30,11 +29,11 @@ const common = {
           i++;
           if (this.checkVar(val, window)) {
             clearInterval(time);
-            console.log(`success, ${content} loaded successfully！`)
+            console.log(`success, ${content} loaded successfully！`);
           }
-          if(i > maxTime * 1000 / 10) {
+          if (i > maxTime * 1000 / 10) {
             clearInterval(time);
-            console.log(`fail, ${content} did not loaded successfully in ${maxTime} s`)
+            console.log(`fail, ${content} did not loaded successfully in ${maxTime} s`);
           }
         }, 100);
       },
@@ -45,7 +44,7 @@ const common = {
         if (attr.indexOf('.') === -1) {
           return this.isObject(obj) && obj.hasOwnProperty(attr);
         }
-        const [ temp, attrNew ] = attr.split('.');    
+        const [ temp, attrNew ] = attr.split('.');
         return this.isObject(obj) && this.checkVar(attrNew, obj[temp]);
       },
       /**
@@ -58,10 +57,10 @@ const common = {
        * 检查是否为对象
        */
       isObject(obj) {
-        return obj && Object.prototype.toString.call(obj) === '[Object Object]'; 
+        return obj && Object.prototype.toString.call(obj) === '[Object Object]';
       },
-      isString(str){ 
-        return (typeof str === 'string') && str.constructor === String; 
+      isString(str) {
+        return (typeof str === 'string') && str.constructor === String;
       },
       /**
        * interval 执行某个函数
@@ -83,13 +82,30 @@ const common = {
         clearInterval(interval);
       },
       /**
-       * 数据渲染成html 
-       */ 
+       * 数据渲染成html
+       */
       str2htmlElement(str) {
         let ele = document.createElement('div');
         ele.innerHTML = str;
         return ele.childNodes[0];
       },
+      /**
+       * 获取数组最后一个值
+       */
+      last(arr) {
+        return arr[arr.length - 1];
+      },
+      /**
+       * 删除数组中值为val的数
+       */
+      remove(arr, val) {
+        const index = arr.indexOf(val);
+        if (index === -1) {
+          return;
+        }
+        arr.splice(index, 1);
+        return arr;
+      }
     };
   }
 };

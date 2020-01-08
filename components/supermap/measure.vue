@@ -1,18 +1,16 @@
 <script>
 export default {
-  inject: ['getMap', 'getUI', 'getLayer', 'getId'],
+  inject: ['getMap', 'getUI', 'getLayer', 'getMapId'],
   data() {
     return {
       map: undefined,
-      group: {},
+      measureGroup: [],
+      mesureTipGroup: [],
 
       tempPoint: null,
       tempLine: null,
-      tempPolygon: null,
-      points: [],
       tempDistance: 0,
-      measureLayer: [],
-      tipLayer: []
+      tempPolygon: null
     };
   },
   methods: {
@@ -21,19 +19,44 @@ export default {
       this.ui = this.getUI();
       this.layer = this.getLayer();
 
-      this.dom = document.getElementById(this.getId());
-      this.group = this.layer.genLayerGroup('meature');
+      this.dom = document.getElementById(this.getMapId());
+      this.measureGroup = this.layer.genLayerGroup('meature');
+      this.mesureTipGroup = this.layer.genLayerGroup('meatureTip');
     },
-    showTip(point) {
-      const { map, ui } = this; 
-      const tip = '<p>左键单击绘制点</br>回车绘制结束</p>';
-      ui.genPopup(point, tip, group);
+    removeMeasure() {
+      this.measureGroup.clearLayers();
+    },
+    showTip(point, dis = undefined) {
+      const { ui, common, mesureTipGroup } = this;
+      const { parseUnit } = common;
+      const { genPopup } = ui;
+
+      let tip, className;
+
+      if (!dis) {
+        tip = '<p class="tip">左键单击绘制点</br>回车绘制结束</p>';
+        className = 'measure-tip';
+      } else {
+        const distance = parseUnit(dis, '米');
+        tip = `<p>距离：${distance}</p>`;
+        className = 'measure-tip-dis';
+      }
+      const pupupOption = {
+        className,
+        closeButton: false
+      };
+
+      genPopup(pupupOption, point, tip, mesureTipGroup);
+    },
+
+    removeTip() {
+      this.mesureTipGroup.clearLayers();
     },
     /**
-     * measureArea
-     **/ 
+     * measureDistance
+     **/
     handleMeasureDistance() {
-      const { map, drawLine, endLine, dom, group, ui } = this;
+      const { map, drawLine, endLine, dom, measureGroup, ui } = this;
 
       if (!map) {
         console.log('地图未初始化！');
@@ -43,7 +66,7 @@ export default {
       dom.style.cursor = 'crosshair';
 
       const lineOption = { color: 'orange' };
-      ui.addPolyline([], lineOption, group);
+      this.tempLine = ui.addPolyline([], lineOption, measureGroup);
 
       map.off('click');
       map.off('keypress');
@@ -51,76 +74,120 @@ export default {
       map.on('keypress', endLine);
     },
     drawLine(e) {
-      const { lat, lng } = e.latlng;
-      this.points.push(e.latlng);
+      const { latlng } = e;
+      let { tempDistance } = this;
+      const { tempPoint: prevPoint, showTip, ui } = this;
 
-      const prevPoint = this.tempPoint;
-      this.tempPoint = L.latLng(lat, lng);
+      const tempPoint = ui.genLnt(latlng.lat, latlng.lng);
+      console.log(tempPoint, prevPoint, latlng);
+      // 显示提示
+      showTip(tempPoint);
 
-      this.addPopup({ content: `<p>左键单击绘制点</br>回车绘制结束</p>`, location: this.tempPoint });
-      if (!prevPoint) {
+      if (!prevPoint) { // 若为第一个点，则不进行计算
+        this.tempPoint = tempPoint;
+        this.tempLine.addLatLng(latlng);
+        this.measureGroup.addLayer(this.tempLine);
         return;
       }
-      this.tempLine.addLatLng(e.latlng);
-      this.measureGroup.addLayer(this.tempLine);
 
-      this.tempDistance = this.tempDistance + prevPoint.distanceTo(this.tempPoint);
-      const content = Math.round(this.tempDistance / 1000) + '千米';
+      const dis = prevPoint.distanceTo(tempPoint);
+      tempDistance += dis;
       const pointMiddle = {
-        lat: (prevPoint.lat + this.tempPoint.lat) / 2,
-        lng: (prevPoint.lng + this.tempPoint.lng) / 2
+        lat: (prevPoint.lat + tempPoint.lat) / 2,
+        lng: (prevPoint.lng + tempPoint.lng) / 2
       };
-      this.addPopup({ content, location: pointMiddle });
+
+      showTip(pointMiddle, dis);
+
+      this.tempPoint = tempPoint;
+      this.tempDistance = tempDistance;
+      this.tempLine.addLatLng(latlng);
+      this.measureGroup.addLayer(this.tempLine);
     },
     endLine(e) {
-      document.getElementById(this.initOption.id).style.cursor = 'default';
-      this.removeTip();
-      const content = '总距离：' + this.common.parseUnit(this.tempDistance, '米');
-      this.addPopup({ marker: this.lines, content, location: this.lines.getCenter(), option: { closeButton: false } });
+      const { map, tempLine, tempDistance, removeTip, ui, dom, common } = this;
+      const { bindTooltip } = ui;
 
-      this.map.off('click');
-      this.map.off('keypress');
+      dom.style.cursor = 'default';
+
+      removeTip();
+
+      const distance = common.parseUnit(tempDistance, '米');
+      const tip = `<p>总距离：${distance}</p>`;
+      const tooltipOption = { opacity: 0.8, direction: 'top', className: 'tooltip', permanent: true };
+      bindTooltip(tip, tempLine, tooltipOption, tempLine.getCenter());
+
       this.tempPoint = null;
+      this.tempLine = null;
       this.tempDistance = 0;
+      map.off('click');
+      map.off('keypress');
     },
 
     /**
      * measureArea
-     *  */ 
-    removeMeasure() {
-      this.measureGroup.clearLayers();
-    },
+     *  */
     handleMeasureArea() {
-      this.points = [];
-      this.tempPolygon = L.polygon(this.points, { color: 'orange', fillColor: 'orange', fillOpacity: 0.5 });
-      document.getElementById(this.initOption.id).style.cursor = 'crosshair';
-      this.map.off('click');
-      this.map.off('keypress');
-      this.map.on('click', (e) => this.drawPoly(e));
-      this.map.on('keypress', (e) => this.endPoly(e));
+      const { map, drawPoly, endPoly, dom, measureGroup, ui } = this;
+
+      dom.style.cursor = 'crosshair';
+
+      const polygonOption = { color: 'orange', fillColor: 'orange', fillOpacity: 0.5 };
+      this.tempPolygon = ui.addPolygon([], polygonOption, measureGroup);
+
+      map.off('click');
+      map.off('keypress');
+      map.on('click', drawPoly);
+      map.on('keypress', endPoly);
     },
     drawPoly(e) {
-      this.points.push(e.latlng);
-      this.removePoup();
-      this.addPopup({ content: `<p>左键单击绘制点</br>回车绘制结束</p>`, location: this.tempPoint, flush: true });
-      this.tempPolygon.addLatLng(e.latlng);
-      this.measureGroup.addLayer(this.tempPolygon);
+      const tempPoint = e.latlng;
+      this.showTip(tempPoint);
+      this.tempPolygon.addLatLng(tempPoint);
+      // this.measureGroup.addLayer(this.tempPolygon);
     },
     endPoly(e) {
-      document.getElementById(this.initOption.id).style.cursor = 'default';
-      this.removePoup();
-      const area = turf.area(this.tempPolygon.toGeoJSON());
-      const center = turf.centroid(this.tempPolygon.toGeoJSON());
-      const [ lon, lat ] = center.geometry.coordinates[1];
+      const { map, dom, removeTip, tempPolygon, ui } = this;
+      const { bindTooltip, genLnt } = ui;
+
+      dom.style.cursor = 'default';
+      removeTip();
+
+      const geoJson = tempPolygon.toGeoJSON();
+      const area = turf.area(geoJson);
+      const center = turf.centroid(geoJson);
+      const [ lng, lat ] = center.geometry.coordinates;
       const content = '面积：' + Math.round(area / 1000000) + '平方千米';
-      this.addPopup({ marker: this.tempPolygon, content, location: { lon, lat }, option: { closeButton: false } });
+      const tooltipOption = { opacity: 0.8, direction: 'top', className: 'tooltip', permanent: true };
+      bindTooltip(content, tempPolygon, tooltipOption, genLnt(lat, lng));
 
-      this.map.off('click');
-      this.map.off('keypress');
+      map.off('click');
+      map.off('keypress');
     }
-  },
-
+  }
 };
 </script>
 <template>
 </template>
+<style>
+  .measure-tip {
+    /* position: absolute; */
+    /* border-radius: 5px; */
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    /* width: 150px; */
+    /* height: 50px; */
+    /* padding: 10px; */
+  }
+  .measure-tip .leaflet-popup-content-wrapper, .measure-tip .leaflet-popup-tip {
+    background: transparent;
+    color: white;
+  }
+  .measure-tip .leaflet-popup-content {
+    margin: 8px;
+  }
+  .measure-tip .tip {
+    margin: 4px 0;
+  }
+
+</style>

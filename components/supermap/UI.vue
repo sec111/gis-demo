@@ -17,6 +17,9 @@ export default {
     init() {
       this.map = this.getMap();
     },
+    genLnt(lat, lng) {
+      return L.latLng(lat, lng);
+    },
     // 生成icon
     genIcon(iconOption) {
       if (iconOption.hasOwnProperty('pulse') && iconOption.pulse 
@@ -66,6 +69,8 @@ export default {
       marker.addTo(target);
       
       bindThing(marker, markerData, props);
+
+      return marker;
     },
     // 添加多个标注点
     addMarker(markerData, target, props = {}) {
@@ -110,7 +115,7 @@ export default {
       }
 
       if (renderPopup) {
-        bindPopup(renderPopup(markerData), target, tooltipOption);
+        bindPopup(renderPopup(markerData), target, popupOption);
       }
 
       if (event) {
@@ -118,42 +123,39 @@ export default {
       } 
     },
     
-    // 添加折线
+    // 添加折线 LatLng[]
     addPolyline(lineData, lineOption, target) {
       const option = lineOption ? lineOption : {};
-      const p = L.polyline(lineData, option).addTo(target); 
+      return L.polyline(lineData, option).addTo(target);
     },
     // 添加区域 undo
-    addPolygon(lineData, lineOption, target) {
+    addPolygon(lineData, lineOption, target, foucs = false) {
       const option = lineOption ? lineOption : {};
       const p = L.polygon(lineData, option).addTo(target); 
-      this.map.fitBounds(p.getBounds());
+      foucs && this.map.fitBounds(p.getBounds());
+      return p;
     },
 
     // 生成 popup undo
-    genPopup(latlng, content, target) {
-      L.popup().setLatLng(latlng).setContent(content).openOn(target);
+    genPopup(option, latlng, content, target) {
+      L.popup(option).setLatLng(latlng).setContent(content).addTo(target);
     },
     // 绑定popup undo
-    bindPopup(content, target, popupOption = {}) {
+    bindPopup(content, target, popupOption = {}, latLng = undefined) {
       const { isOpen } = popupOption;
 
       if (isOpen) {
-        console.log(isOpen);
-        delete popupOption.isOpen
-        target.bindPopup(content, popupOption).openPopup();
+        target.bindPopup(content, popupOption).openPopup(latLng);
         return;
       }
       target.bindPopup(content, popupOption);
     },
     // 绑定tooltip
-    bindTooltip(content, target, tooltipOption = {}) {
+    bindTooltip(content, target, tooltipOption = {}, latLng = undefined) {
       const { isOpen } = tooltipOption;
 
       if (isOpen) {
-        console.log(isOpen);
-        delete tooltipOption.isOpen
-        target.bindTooltip(content, tooltipOption).openTooltip();
+        target.bindTooltip(content, tooltipOption).openTooltip(latLng);
         return;
       }
       target.bindTooltip(content, tooltipOption);
